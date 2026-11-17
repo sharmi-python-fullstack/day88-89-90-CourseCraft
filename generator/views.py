@@ -466,13 +466,21 @@ async def generate_content(request):
                 }
 
                 try:
-                    response = await asyncio.to_thread(
-                        requests.post,
-                        GEMINI_API_URL,
-                        params={"key": api_key},
-                        json=payload,
-                        timeout=30,
-                    )
+                    for attempt in range(3):
+                        response = await asyncio.to_thread(
+                            requests.post,
+                            GEMINI_API_URL,
+                            params={"key": api_key},
+                            json=payload,
+                            timeout=30,
+                        )
+                        if (
+                            response.status_code in {500, 502, 503, 504}
+                            and attempt < 2
+                        ):
+                            await asyncio.sleep(attempt + 1)
+                            continue
+                        break
                     response.raise_for_status()
                     response_data = response.json()
                     notes, key_points, summary_text, quiz_data = (
@@ -508,6 +516,10 @@ async def generate_content(request):
                     elif status_code == 429:
                         error_message = (
                             "Gemini's quota or rate limit was reached. Please try again later."
+                        )
+                    elif status_code in {500, 502, 503, 504}:
+                        error_message = (
+                            "Gemini is temporarily unavailable. Please try again shortly."
                         )
                     else:
                         error_message = (

@@ -1,5 +1,5 @@
 import json
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import requests
 from django.contrib.auth.models import User
@@ -116,6 +116,27 @@ class GenerateContentTests(TestCase):
         ]["questions"]
         self.assertEqual(question_schema["minItems"], 10)
         self.assertNotIn("maxItems", question_schema)
+
+    @patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"})
+    @patch("generator.views.requests.post")
+    def test_temporary_gemini_outage_is_retried(self, mock_post):
+        unavailable_response = Mock(status_code=503)
+        successful_response = self.gemini_api_response()
+        successful_response.status_code = 200
+        mock_post.side_effect = [unavailable_response, successful_response]
+
+        with patch(
+            "generator.views.asyncio.sleep",
+            new_callable=AsyncMock,
+        ) as mock_sleep:
+            response = self.client.post("/generate/", {"title": "Photosynthesis"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(mock_post.call_count, 2)
+        mock_sleep.assert_awaited_once_with(1)
+        self.assertTrue(
+            CourseTopic.objects.filter(title="Photosynthesis").exists()
+        )
 
     @patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"})
     @patch("generator.views.requests.post")
