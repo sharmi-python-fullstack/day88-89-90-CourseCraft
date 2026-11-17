@@ -1,0 +1,22 @@
+{% extends "generator/base.html" %}
+
+{% block title %}Create course content | CourseCraft{% endblock %}
+
+{% block content %}
+    <a class="breadcrumb" href="{% url 'generator:student_dashboard' %}">← Student dashboard</a>
+    <header class="page-heading">
+        <span class="eyebrow">Teacher workspace</span>
+        <h1>Create course material</h1>
+        <p>Generate structured study notes, a summary, and a 10-question knowledge check.</p>
+    </header>
+    <form class="form-card" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-field">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <button type="submit">Generate course material</button>
+    </form>
+{% endblock %}

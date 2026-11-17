@@ -1,0 +1,55 @@
+{% extends "generator/base.html" %}
+
+{% block title %}{{ content.course_topic.title }} | Teacher workspace{% endblock %}
+
+{% block content %}
+    <a class="breadcrumb" href="{% url 'generator:generate_content' %}">
+        ← Create another topic
+    </a>
+    <header class="page-heading">
+        <span class="eyebrow">Generated course material</span>
+        <h1>{{ content.course_topic.title }}</h1>
+    </header>
+    <div class="content-stack">
+        <section class="content-card">
+            <h2>Study notes</h2>
+            <p>{{ content.notes|linebreaksbr }}</p>
+        </section>
+        <section class="content-card">
+            <h2>Key points</h2>
+            <ul class="key-list">
+                {% for point in content.key_points.splitlines %}
+                    <li>{{ point }}</li>
+                {% empty %}
+                    <li>No key points were generated.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% if summary %}
+            <section class="content-card">
+                <h2>Summary</h2>
+                <p>{{ summary.summary_text|linebreaksbr }}</p>
+            </section>
+        {% endif %}
+        {% if content.quiz %}
+            <section class="content-card">
+                <span class="eyebrow">Knowledge check</span>
+                <h2>{{ content.quiz.title }}</h2>
+                <p>{{ content.quiz.description|linebreaksbr }}</p>
+                {% for question in content.quiz.questions.all %}
+                    <article class="question-card">
+                        <h3>{{ forloop.counter }}. {{ question.question_text }}</h3>
+                        <ul class="key-list">
+                            {% for answer in question.answers.all %}
+                                <li>
+                                    {{ answer.answer_text }}
+                                    {% if answer.is_correct %}<strong>(Correct)</strong>{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

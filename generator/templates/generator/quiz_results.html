@@ -1,0 +1,50 @@
+{% extends "generator/base.html" %}
+
+{% block title %}{{ quiz.title }} results | CourseCraft{% endblock %}
+
+{% block content %}
+    <a class="breadcrumb" href="{% url 'generator:view_content' quiz.course_topic_id %}">
+        ← Back to course
+    </a>
+    <header class="page-heading">
+        <span class="eyebrow">Quiz complete</span>
+        <h1>{{ quiz.title }}</h1>
+        <p>Review your answers and see what to revisit.</p>
+    </header>
+
+    <section class="score-card" aria-label="Quiz score">
+        <p class="score-number">{{ score }} <span>/ {{ total }}</span></p>
+        <p class="score-caption">Your score: {{ percentage }}%</p>
+    </section>
+
+    <ol class="result-list">
+        {% for result in results %}
+            <li class="result-card">
+                <p><strong>{{ result.question.question_text }}</strong></p>
+                {% if result.is_correct %}
+                    <p class="result-status result-correct">
+                        Correct — {{ result.selected_answer.answer_text }}
+                    </p>
+                {% else %}
+                    <p class="result-status result-incorrect">Not quite</p>
+                    {% if result.selected_answer %}
+                        <p>Your answer: {{ result.selected_answer.answer_text }}</p>
+                    {% else %}
+                        <p>You did not answer this question.</p>
+                    {% endif %}
+                    {% if result.correct_answer %}
+                        <p>Correct answer: {{ result.correct_answer.answer_text }}</p>
+                    {% endif %}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+    <div class="action-row">
+        <a class="button" href="{% url 'generator:view_content' quiz.course_topic_id %}">
+            Review course
+        </a>
+        <a class="button button-secondary" href="{% url 'generator:student_dashboard' %}">
+            All courses
+        </a>
+    </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "!",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "fixture-teacher",
+      "first_name": "Fixture",
+      "last_name": "Teacher",
+      "email": "fixture@example.test",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "generator.coursetopic",
+    "pk": 1,
+    "fields": {
+      "title": "Fixture Course Topic",
+      "teacher": 1
+    }
+  },
+  {
+    "model": "generator.quiz",
+    "pk": 1,
+    "fields": {
+      "course_topic": 1,
+      "title": "Fixture Quiz",
+      "description": "A quiz for testing exports."
+    }
+  },
+  {
+    "model": "generator.question",
+    "pk": 1,
+    "fields": {
+      "quiz": 1,
+      "question_text": "Which option is correct?"
+    }
+  },
+  {
+    "model": "generator.answer",
+    "pk": 1,
+    "fields": {
+      "question": 1,
+      "answer_text": "The correct answer",
+      "is_correct": true
+    }
+  },
+  {
+    "model": "generator.answer",
+    "pk": 2,
+    "fields": {
+      "question": 1,
+      "answer_text": "An incorrect answer",
+      "is_correct": false
+    }
+  },
+  {
+    "model": "generator.generatedcontent",
+    "pk": 1,
+    "fields": {
+      "course_topic": 1,
+      "quiz": 1,
+      "notes": "Fixture notes with readable paragraphs.",
+      "key_points": "First fixture point\nSecond fixture point"
+    }
+  },
+  {
+    "model": "generator.summary",
+    "pk": 1,
+    "fields": {
+      "course_topic": 1,
+      "summary_text": "Fixture summary."
+    }
+  }
+]

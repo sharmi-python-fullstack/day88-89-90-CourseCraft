@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>{% block title %}CourseCraft{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'generator/styles.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Main navigation">
+            <a class="brand" href="{% url 'generator:student_dashboard' %}">
+                <span class="brand-mark" aria-hidden="true">C</span>
+                <span>CourseCraft</span>
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'generator:student_dashboard' %}">Courses</a>
+                <a href="{% url 'generator:generate_content' %}">Teacher workspace</a>
+                <a href="{% url 'admin:index' %}">Admin</a>
+            </div>
+        </nav>
+    </header>
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <span>CourseCraft</span>
+        <span>Learn at your own pace.</span>
+    </footer>
+</body>
+</html>
