@@ -485,7 +485,41 @@ async def generate_content(request):
                         "The content generation service returned an invalid response. "
                         "Please try again.",
                     )
-                except requests.exceptions.RequestException:
+                except requests.exceptions.HTTPError as error:
+                    status_code = (
+                        error.response.status_code
+                        if error.response is not None
+                        else None
+                    )
+                    logger.warning(
+                        "Gemini API returned HTTP status %s.",
+                        status_code,
+                    )
+                    if status_code == 404:
+                        error_message = (
+                            "The configured Gemini model is unavailable. "
+                            "Check GEMINI_MODEL in the deployment settings."
+                        )
+                    elif status_code in {401, 403}:
+                        error_message = (
+                            "Gemini rejected the API credentials or project access. "
+                            "Check GEMINI_API_KEY and API access."
+                        )
+                    elif status_code == 429:
+                        error_message = (
+                            "Gemini's quota or rate limit was reached. Please try again later."
+                        )
+                    else:
+                        error_message = (
+                            "The content generation service rejected the request. "
+                            "Check the deployment logs."
+                        )
+                    form.add_error(None, error_message)
+                except requests.exceptions.RequestException as error:
+                    logger.warning(
+                        "Gemini API request failed (%s).",
+                        type(error).__name__,
+                    )
                     form.add_error(
                         None,
                         "Could not reach the content generation service. Please try again.",

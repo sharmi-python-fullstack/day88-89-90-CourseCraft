@@ -1,6 +1,7 @@
 import json
 from unittest.mock import Mock, patch
 
+import requests
 from django.contrib.auth.models import User
 from django.db import DatabaseError
 from django.test import TestCase
@@ -185,6 +186,23 @@ class GenerateContentTests(TestCase):
         self.assertContains(response, "returned an invalid response")
         self.assertFalse(CourseTopic.objects.exists())
         self.assertFalse(GeneratedContent.objects.exists())
+
+    @patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"})
+    @patch("generator.views.requests.post")
+    def test_unavailable_model_reports_status_without_logging_api_key(self, mock_post):
+        api_response = Mock()
+        api_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
+            response=Mock(status_code=404)
+        )
+        mock_post.return_value = api_response
+
+        with self.assertLogs("generator.views", level="WARNING") as logs:
+            response = self.client.post("/generate/", {"title": "Photosynthesis"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "configured Gemini model is unavailable")
+        self.assertIn("HTTP status 404", "\n".join(logs.output))
+        self.assertNotIn("test-key", "\n".join(logs.output))
 
     @patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"})
     @patch(
